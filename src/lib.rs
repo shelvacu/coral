@@ -179,6 +179,7 @@ impl Iterator for Analyzer {
                 let _ = file.write(&entry_buffer).unwrap();
                 writeln!(file).unwrap();
             }
+            eprintln!("{}",String::from_utf8(entry_buffer.clone()).unwrap());
             let mut entry: Entry = serde_json::from_slice(&entry_buffer).unwrap();
             entry.color = self.color;
             Some(entry)
@@ -546,8 +547,25 @@ pub enum CrateType {
 #[allow(missing_docs)]
 pub struct Profile {
     pub opt_level: String,
-    pub debuginfo: u8,
+    pub debuginfo: Option<u8>,
     pub debug_assertions: bool,
     pub overflow_checks: bool,
     pub test: bool,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_build() {
+        let analyzer = Analyzer::with_args(Checker::Build, &[]).unwrap();
+        let results:Vec<_> = analyzer.collect();
+    }
+
+    #[test]
+    fn test_build_release() {
+        let analyzer = Analyzer::with_args(Checker::Build, &["--release"]).unwrap();
+        let results:Vec<_> = analyzer.collect();
+    }
 }
